@@ -1,0 +1,65 @@
+layout {
+    default_tab_template {
+        children
+        pane size=1 borderless=true {
+            plugin location="zjstatus" {
+                color_bg          "#282828"
+                color_fg          "#ebdbb2"
+                color_black       "#282828"
+                color_red         "#fb4934"
+                color_green       "#b8bb26"
+                color_yellow      "#fabd2f"
+                color_blue        "#83a598"
+                color_magenta     "#d3869b"
+                color_cyan        "#8ec07c"
+                color_white       "#ebdbb2"
+                color_orange      "#fe8019"
+                color_gray        "#928374"
+
+                format_left   "#[fg=$bg,bg=$yellow,bold] {mode} #[fg=$yellow,bg=$bg] {session} "
+                format_center "{tabs}"
+                format_right  "#[fg=$cyan]󱃾 {command_kube_ctx}  #[fg=$blue]{datetime} "
+
+                mode_normal        "NORMAL "
+                mode_locked        "#[fg=$bg,bg=$red,bold] LOCKED "
+                mode_pane          "#[fg=$bg,bg=$green,bold] PANE "
+                mode_tab           "#[fg=$bg,bg=$blue,bold] TAB "
+                mode_resize        "#[fg=$bg,bg=$magenta,bold] RESIZE "
+                mode_scroll        "#[fg=$bg,bg=$cyan,bold] SCROLL "
+                mode_session       "#[fg=$bg,bg=$orange,bold] SESSION "
+                mode_default_to_mode "normal"
+
+                tab_normal              "#[fg=$gray,bg=$bg] {index} {name} "
+                tab_active              "#[fg=$bg,bg=$yellow,bold] {index} {name} "
+
+                command_kube_ctx_command    "sh -c 'kubectl config current-context 2>/dev/null'"
+                command_kube_ctx_format     "{stdout}"
+                command_kube_ctx_interval   "5"
+                command_kube_ctx_rendermode "static"
+
+                datetime           "{format}"
+                datetime_format    "%H:%M"
+                datetime_timezone  "Europe/Moscow"
+            }
+        }
+    }
+
+    tab name="k9s" focus=true {
+        pane command="k9s"
+    }
+
+    tab name="kubectl" {
+        pane split_direction="horizontal" {
+            pane size="60%" name="kubectl"
+            pane name="logs" command="sh" {
+                args "-lc" "echo 'tip: stern <selector>  |  kubectl logs -f <pod>'; exec $SHELL"
+            }
+        }
+    }
+
+    tab name="contexts" {
+        pane command="sh" {
+            args "-lc" "kubectl config get-contexts; exec $SHELL"
+        }
+    }
+}
