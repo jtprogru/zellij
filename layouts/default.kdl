@@ -1,0 +1,58 @@
+layout {
+    default_tab_template {
+        children
+        pane size=1 borderless=true {
+            plugin location="zjstatus" {
+                color_bg          "#282828"
+                color_fg          "#ebdbb2"
+                color_black       "#282828"
+                color_red         "#fb4934"
+                color_green       "#b8bb26"
+                color_yellow      "#fabd2f"
+                color_blue        "#83a598"
+                color_magenta     "#d3869b"
+                color_cyan        "#8ec07c"
+                color_white       "#ebdbb2"
+                color_orange      "#fe8019"
+                color_gray        "#928374"
+
+                format_left   "#[fg=$bg,bg=$yellow,bold] {mode} #[fg=$yellow,bg=$bg] {session} "
+                format_center "{tabs}"
+                format_right  "#[fg=$gray]{command_git_branch}  #[fg=$blue]{datetime} "
+                format_space  "#[bg=$bg]"
+
+                mode_normal        "NORMAL "
+                mode_locked        "#[fg=$bg,bg=$red,bold] LOCKED "
+                mode_pane          "#[fg=$bg,bg=$green,bold] PANE "
+                mode_tab           "#[fg=$bg,bg=$blue,bold] TAB "
+                mode_resize        "#[fg=$bg,bg=$magenta,bold] RESIZE "
+                mode_scroll        "#[fg=$bg,bg=$cyan,bold] SCROLL "
+                mode_search        "#[fg=$bg,bg=$cyan,bold] SEARCH "
+                mode_session       "#[fg=$bg,bg=$orange,bold] SESSION "
+                mode_move          "#[fg=$bg,bg=$magenta,bold] MOVE "
+                mode_tmux          "#[fg=$bg,bg=$green,bold] TMUX "
+                mode_default_to_mode "normal"
+
+                tab_normal              "#[fg=$gray,bg=$bg] {index} {name} "
+                tab_active              "#[fg=$bg,bg=$yellow,bold] {index} {name} "
+                tab_normal_fullscreen   "#[fg=$gray,bg=$bg] {index} {name} [] "
+                tab_normal_sync         "#[fg=$gray,bg=$bg] {index} {name} <> "
+                tab_active_fullscreen   "#[fg=$bg,bg=$yellow,bold] {index} {name} [] "
+                tab_active_sync         "#[fg=$bg,bg=$yellow,bold] {index} {name} <> "
+
+                command_git_branch_command     "sh -c 'git rev-parse --abbrev-ref HEAD 2>/dev/null'"
+                command_git_branch_format      " {stdout}"
+                command_git_branch_interval    "5"
+                command_git_branch_rendermode  "static"
+
+                datetime           "{format}"
+                datetime_format    "%Y-%m-%d %H:%M"
+                datetime_timezone  "Europe/Moscow"
+            }
+        }
+    }
+
+    tab name="main" focus=true {
+        pane
+    }
+}
