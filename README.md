@@ -276,6 +276,7 @@ Zellij модальный. В каждом режиме свой набор би
 ## Сессии
 
 Сериализация **включена** (`session_serialization true`), поэтому сессии переживают:
+
 - закрытие окна терминала,
 - ребут (если сериализация успела сработать — по умолчанию каждые 10 секунд: `serialization_interval`),
 - завершение демона zellij.
@@ -313,19 +314,22 @@ zellij --layout ops
 default_layout "dev"
 ```
 
-### Что внутри:
+### Что внутри
 
 **`dev.kdl`** — основной рабочий layout.
+
 - `code` (фокусная) — editor (70% по ширине) + shell + git status.
 - `run` — пустая большая панель под запуск приложения/тестов.
 - `scratch` — для черновых команд.
 
 **`k8s.kdl`** — для работы с Kubernetes.
+
 - `k9s` (фокусная) — запуск `k9s`.
 - `kubectl` — большая `kubectl`-панель + панель под логи (`stern`/`kubectl logs -f`).
 - `contexts` — вывод `kubectl config get-contexts`.
 
 **`ops.kdl`** — системное наблюдение.
+
 - `monitor` (фокусная) — `htop` сверху, shell + логи снизу.
 - `net` — две панели под `lsof`, `nc`, `dig` и т.п.
 - `shell` — чистая панель.
@@ -419,6 +423,7 @@ load_plugins {
 `Alt+g` → floating-окно со списком всех подкаталогов из `root_dirs`. Выбираешь — создаётся (или восстанавливается) сессия с именем папки, cwd в неё.
 
 **Настрой под себя** в `config.kdl`, секция `sessionizer`:
+
 ```kdl
 root_dirs "/Users/jtprogru/projects;/Users/jtprogru/dev;/Users/jtprogru/work"
 individual_dirs "/Users/jtprogru/.config;/Users/jtprogru/.config/zellij"
@@ -434,12 +439,14 @@ individual_dirs "/Users/jtprogru/.config;/Users/jtprogru/.config/zellij"
 `Ctrl+h/j/k/l` — сначала пытается перейти к сплиту внутри vim/nvim, и только если уже на краю — переключается на соседнюю zellij-панель. То же в обратную сторону.
 
 **Требует плагин в Neovim:**
+
 ```lua
 -- lazy.nvim
 { "mrjones2014/smart-splits.nvim" }
 ```
 
 И биндинги в nvim:
+
 ```lua
 vim.keymap.set('n', '<C-h>', require('smart-splits').move_cursor_left)
 vim.keymap.set('n', '<C-j>', require('smart-splits').move_cursor_down)
@@ -456,7 +463,8 @@ vim.keymap.set('n', '<C-l>', require('smart-splits').move_cursor_right)
 Грузится в фоне (через `load_plugins`). Каждый раз когда нажимаешь `Enter` в normal-mode, плагин смотрит foreground-процесс активной панели — если он попадает в `triggers`, zellij переходит в locked-mode (отдаёт все кейкомбы приложению). Выходишь из приложения — автоматически возвращается в normal.
 
 Сейчас в `triggers`:
-```
+
+```list
 nvim|vim|fzf|zoxide|lazygit|k9s|btop|htop|less|man
 ```
 
@@ -467,6 +475,7 @@ nvim|vim|fzf|zoxide|lazygit|k9s|btop|htop|less|man
 ### 5. harpoon — закладки панелей
 
 `Ctrl+y` открывает floating-окно. Внутри:
+
 - `a` — добавить текущую панель в закладки
 - `A` — добавить все панели текущей сессии
 - `j`/`k` или стрелки — навигация
@@ -563,6 +572,7 @@ zellij action go-to-tab 2
 ## Решение проблем
 
 **Иконки/стрелки в статус-баре «битые»** — терминал без Nerd Font. Варианты:
+
 - поставить Nerd Font в терминал (`brew install --cask font-jetbrains-mono-nerd-font`);
 - или включить упрощённый UI: `simplified_ui true` в `config.kdl`.
 
@@ -576,11 +586,13 @@ zellij action go-to-tab 2
 **Хочу tmux-бинды** — они уже есть через `Ctrl+b` (см. раздел [tmux mode](#tmux-mode-ctrlb)).
 
 **Сессия не восстановилась после ребута** — `serialization_interval` по умолчанию 10 сек. Если приложение было закрыто раньше — сериализация не успела. Уменьшить интервал в `config.kdl`:
+
 ```kdl
 serialization_interval 5
 ```
 
 **Конфиг полностью сбросить к дефолту** —
+
 ```bash
 zellij setup --dump-config > ~/.config/zellij/config.kdl
 ```
@@ -589,8 +601,8 @@ zellij setup --dump-config > ~/.config/zellij/config.kdl
 
 ## Ссылки
 
-- Документация: https://zellij.dev/documentation/
-- Конфиг-референс: https://zellij.dev/documentation/configuration
-- Layouts: https://zellij.dev/documentation/layouts
-- Плагины: https://zellij.dev/documentation/plugins
-- KDL формат: https://kdl.dev
+- Документация: <https://zellij.dev/documentation/>
+- Конфиг-референс: <https://zellij.dev/documentation/configuration>
+- Layouts: <https://zellij.dev/documentation/layouts>
+- Плагины: <https://zellij.dev/documentation/plugins>
+- KDL формат: <https://kdl.dev>
