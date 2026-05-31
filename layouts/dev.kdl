@@ -55,17 +55,25 @@ layout {
         }
     }
 
-    tab name="code" focus=true {
-        pane split_direction="vertical" {
-            pane size="70%" name="editor"
-            pane split_direction="horizontal" {
-                pane name="shell"
-            }
+    tab name="main" focus=true {
+        pane name="main"
+    }
+
+    tab name="editor" {
+        pane name="editor" command="nvim" {
+            args "."
         }
     }
 
     tab name="run" {
-        pane name="run"
+        pane split_direction="horizontal" {
+            pane size="50%" name="run"
+            pane size="50%" name="logs"
+        }
+    }
+
+    tab name="git" {
+        pane name="git" command="lazygit"
     }
 
     tab name="scratch" {
