@@ -10,6 +10,12 @@
 │   ├── dev.kdl
 │   ├── k8s.kdl
 │   └── ops.kdl
+├── plugins/            # сторонние плагины (.wasm)
+│   ├── zjstatus.wasm
+│   ├── zellij-sessionizer.wasm
+│   ├── vim-zellij-navigator.wasm
+│   ├── zellij-autolock.wasm
+│   └── harpoon.wasm
 └── README.md
 ```
 
@@ -25,7 +31,7 @@
 6. [Кейбинды](#кейбинды)
 7. [Сессии](#сессии)
 8. [Layouts](#layouts)
-9. [Плагины](#плагины)
+9. [Плагины](#плагины) · [Дефолтный dev-набор](#дефолтный-dev-набор)
 10. [Тема](#тема)
 11. [Полезные команды CLI](#полезные-команды-cli)
 12. [Решение проблем](#решение-проблем)
@@ -152,6 +158,11 @@ Zellij модальный. В каждом режиме свой набор би
 | `Alt+w` | **Закрыть текущую панель** *(кастом)* |
 | `Alt+v` | **Split вправо** *(кастом)* |
 | `Alt+s` | **Split вниз** *(кастом)* |
+| `Ctrl+h/j/k/l` | **Бесшовная навигация с vim/nvim** *(vim-navigator)* |
+| `Alt+g` | **Sessionizer** — пикер сессий по папкам |
+| `Ctrl+y` | **Harpoon** — список «закладок» панелей |
+| `Alt+z` | **Toggle autolock** (вручную в/из locked) |
+| `Alt+m` | Войти в move-mode (раньше был `Ctrl+h`) |
 | `Alt+f` | Toggle floating panes |
 | `Alt+i` / `Alt+o` | Передвинуть вкладку влево/вправо |
 | `Alt+[` / `Alt+]` | Предыдущий/следующий swap-layout |
@@ -385,6 +396,98 @@ load_plugins {
 ```
 
 Перезапустить zellij для применения.
+
+---
+
+## Дефолтный dev-набор
+
+В `~/.config/zellij/plugins/` уже лежат 5 сторонних плагинов и подключены через алиасы в `config.kdl`. Кратко — зачем каждый и как пользоваться.
+
+### 1. zjstatus — статус-бар
+
+Заменяет встроенный `tab-bar` + `status-bar` на одну строку с темой gruvbox.
+Показывает: режим, имя сессии, вкладки, git-ветку, время (Europe/Moscow).
+
+- В `dev.kdl` справа: `git branch + datetime`
+- В `k8s.kdl` справа: `kubectl current-context + datetime`
+- В `ops.kdl` справа: `load average (uptime) + datetime`
+
+Виджеты конфигурируются в самом layout-файле, в секции `plugin location="zjstatus" { ... }`. Полный референс: [github.com/dj95/zjstatus/wiki](https://github.com/dj95/zjstatus/wiki).
+
+### 2. zellij-sessionizer — пикер сессий по папкам
+
+`Alt+g` → floating-окно со списком всех подкаталогов из `root_dirs`. Выбираешь — создаётся (или восстанавливается) сессия с именем папки, cwd в неё.
+
+**Настрой под себя** в `config.kdl`, секция `sessionizer`:
+```kdl
+root_dirs "/Users/jtprogru/projects;/Users/jtprogru/dev;/Users/jtprogru/work"
+individual_dirs "/Users/jtprogru/.config;/Users/jtprogru/.config/zellij"
+```
+
+- `root_dirs` — папки, в которых сканируются подкаталоги на одном уровне.
+- `individual_dirs` — конкретные папки (без сканирования).
+
+Аналог tmux-sessionizer от ThePrimeagen.
+
+### 3. vim-zellij-navigator — бесшовная навигация с (n)vim
+
+`Ctrl+h/j/k/l` — сначала пытается перейти к сплиту внутри vim/nvim, и только если уже на краю — переключается на соседнюю zellij-панель. То же в обратную сторону.
+
+**Требует плагин в Neovim:**
+```lua
+-- lazy.nvim
+{ "mrjones2014/smart-splits.nvim" }
+```
+
+И биндинги в nvim:
+```lua
+vim.keymap.set('n', '<C-h>', require('smart-splits').move_cursor_left)
+vim.keymap.set('n', '<C-j>', require('smart-splits').move_cursor_down)
+vim.keymap.set('n', '<C-k>', require('smart-splits').move_cursor_up)
+vim.keymap.set('n', '<C-l>', require('smart-splits').move_cursor_right)
+```
+
+Альтернативы: `Navigator.nvim` (умеет и tmux, и zellij), `zellij-nav.nvim`.
+
+**Важно:** старый `Ctrl+h` (вход в move-mode) переехал на `Alt+m`.
+
+### 4. zellij-autolock — авто-locked при vim/fzf/k9s
+
+Грузится в фоне (через `load_plugins`). Каждый раз когда нажимаешь `Enter` в normal-mode, плагин смотрит foreground-процесс активной панели — если он попадает в `triggers`, zellij переходит в locked-mode (отдаёт все кейкомбы приложению). Выходишь из приложения — автоматически возвращается в normal.
+
+Сейчас в `triggers`:
+```
+nvim|vim|fzf|zoxide|lazygit|k9s|btop|htop|less|man
+```
+
+Зачем: чтобы кейбинды zellij (`Ctrl+p`, `Ctrl+s`, `Ctrl+n` и т.п.) не отбирались у этих приложений.
+
+`Alt+z` — ручной toggle, если нужно отключить/включить.
+
+### 5. harpoon — закладки панелей
+
+`Ctrl+y` открывает floating-окно. Внутри:
+- `a` — добавить текущую панель в закладки
+- `A` — добавить все панели текущей сессии
+- `j`/`k` или стрелки — навигация
+- `Enter` / `l` — прыгнуть на выбранную панель
+- `d` — удалить из списка
+- `Esc` — выйти
+
+Полезно, когда часто прыгаешь между 3-4 ключевыми панелями в большой сессии.
+
+### Обновление плагинов
+
+```bash
+cd ~/.config/zellij/plugins
+curl -fsSL -O https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm
+curl -fsSL -O https://github.com/laperlej/zellij-sessionizer/releases/latest/download/zellij-sessionizer.wasm
+curl -fsSL -O https://github.com/hiasr/vim-zellij-navigator/releases/latest/download/vim-zellij-navigator.wasm
+curl -fsSL -O https://github.com/fresh2dev/zellij-autolock/releases/latest/download/zellij-autolock.wasm
+curl -fsSL -O https://github.com/Nacho114/harpoon/releases/latest/download/harpoon.wasm
+```
+
+Затем перезапустить все сессии (`zellij kill-all-sessions` → новый запуск).
 
 ---
 
