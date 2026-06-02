@@ -73,7 +73,7 @@ layout {
     }
 
     tab name="git" {
-        pane name="git" command="lazygit"
+        pane name="git" command="/opt/homebrew/bin/lazygit"
     }
 
     tab name="scratch" {
